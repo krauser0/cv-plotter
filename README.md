@@ -1,11 +1,11 @@
-## Some python scripts made for cyclic volt experiment. 
+Some python scripts made for cyclic volt experiment. 
 
-## plotter.py - identifies peaks in CV data.
-## baseline-estimate.py - approximates baseline to correct current peaks.
+plotter.py - identifies peaks in CV data.
+baseline-estimate.py - approximates baseline to correct current peaks.
 
 
 
-## Change da world. My final message. Goodb ye ##
+Change da world. My final message. Goodb ye
 
 ⠀⠀⢀⣠⠤⠶⠖⠒⠒⠶⠦⠤⣄⠀⠀⠀⣀⡤⠤⠤⠤⠤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⣦⠞⠁⠀⠀⠀⠀⠀⠀⠉⠳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
