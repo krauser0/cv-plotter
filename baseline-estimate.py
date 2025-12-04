@@ -5,33 +5,21 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from sklearn.linear_model import LinearRegression
 
-# -----------------------------
-# Load Data
-# -----------------------------
 file_path = os.path.join(os.path.dirname(__file__), "Data5_CleanedCV1.csv")
 df = pd.read_csv(file_path)
 
 V = df["Potential"].values
 I = df["Current"].values
 
-# -----------------------------
-# Find peaks
-# -----------------------------
 peaks_anodic, _ = find_peaks(I, distance=20)
 peaks_cathodic, _ = find_peaks(-I, distance=20)
 
 ipa_idx = peaks_anodic[np.argmax(I[peaks_anodic])]
 ipc_idx = peaks_cathodic[np.argmax(-I[peaks_cathodic])]
 
-# -----------------------------
-# Detect switching potential
-# -----------------------------
-switch_idx = np.argmin(V)  # The minimum potential in this CV (-0.2V)
+switch_idx = np.argmin(V)
 print("Switching potential:", V[switch_idx], "V at index", switch_idx)
 
-# -----------------------------
-# Function: find most linear segment from start
-# -----------------------------
 def most_linear_segment(V_segment, I_segment, min_points=5):
     """
     Automatically finds the longest segment starting at index 0
@@ -54,9 +42,6 @@ def most_linear_segment(V_segment, I_segment, min_points=5):
 
     return best_model, best_r2, 0, best_end
 
-# -----------------------------
-# 1. Forward scan baseline (before cathodic peak)
-# -----------------------------
 V_forward = V[:switch_idx+1]   # All points from start to switching potential
 I_forward = I[:switch_idx+1]
 model_forward, r2_forward, f_start, f_end = most_linear_segment(V_forward, I_forward)
@@ -64,9 +49,6 @@ model_forward, r2_forward, f_start, f_end = most_linear_segment(V_forward, I_for
 Ipc_baseline = model_forward.predict([[V[ipc_idx]]])[0]
 Ipc = I[ipc_idx] - Ipc_baseline
 
-# -----------------------------
-# 2. Reverse scan baseline (after switching potential)
-# -----------------------------
 V_reverse = V[switch_idx:]  # All points from switching potential onward
 I_reverse = I[switch_idx:]
 model_reverse, r2_reverse, r_start, r_end = most_linear_segment(V_reverse, I_reverse)
@@ -74,9 +56,7 @@ model_reverse, r2_reverse, r_start, r_end = most_linear_segment(V_reverse, I_rev
 Ipa_baseline = model_reverse.predict([[V[ipa_idx]]])[0]
 Ipa = I[ipa_idx] - Ipa_baseline
 
-# -----------------------------
-# Print results
-# -----------------------------
+
 print("\n=== CATHODIC PEAK ===")
 print(f"Equation: I = {model_forward.coef_[0]:.5g}*V + {model_forward.intercept_:.5g}")
 print(f"R² = {r2_forward:.5f}")
@@ -87,18 +67,13 @@ print(f"Equation: I = {model_reverse.coef_[0]:.5g}*V + {model_reverse.intercept_
 print(f"R² = {r2_reverse:.5f}")
 print(f"Ipa (baseline corrected) = {Ipa:.5g} A at {V[ipa_idx]:.4f} V")
 
-# -----------------------------
-# Plot
-# -----------------------------
 plt.figure(figsize=(8,6))
 plt.plot(V, I, label="CV curve", linewidth=1.3)
 plt.scatter(V[ipc_idx], I[ipc_idx], color='blue', label="Cathodic peak")
 plt.scatter(V[ipa_idx], I[ipa_idx], color='red', label="Anodic peak")
 
-# Forward scan baseline
 plt.plot(V[f_start:f_end], model_forward.predict(V[f_start:f_end].reshape(-1,1)), '--', color='blue', alpha=0.8, label="Forward scan baseline")
 
-# Reverse scan baseline
 plt.plot(V[switch_idx+r_start:switch_idx+r_end], model_reverse.predict(V_reverse[r_start:r_end].reshape(-1,1)), '--', color='red', alpha=0.8, label="Reverse scan baseline")
 
 plt.xlabel("Potential (V)")
